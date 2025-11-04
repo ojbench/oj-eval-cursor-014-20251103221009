@@ -502,14 +502,19 @@ Value EvalVisitor::getValue(const std::string& name) {
 
 void EvalVisitor::setValue(const std::string& name, const Value& val) {
     if (!scopeStack.empty()) {
-        // Check if variable exists in any scope
+        // Check if variable exists in local scopes first
         for (auto it = scopeStack.rbegin(); it != scopeStack.rend(); ++it) {
             if (it->find(name) != it->end()) {
                 (*it)[name] = val;
                 return;
             }
         }
-        // Not found in any local scope, set in current scope
+        // Check if it exists in global scope
+        if (globalScope.find(name) != globalScope.end()) {
+            globalScope[name] = val;
+            return;
+        }
+        // Not found anywhere, set in current scope
         scopeStack.back()[name] = val;
     } else {
         globalScope[name] = val;
