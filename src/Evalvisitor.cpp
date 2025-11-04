@@ -211,11 +211,16 @@ BigInt BigInt::operator/(const BigInt& other) const {
     BigInt result(quot);
     
     // Python floor division behavior
-    if (negative != other.negative && rem != "0") {
-        result = result - BigInt(1);
+    // For different signs with non-zero remainder, we need -(q+1) instead of q
+    if (negative != other.negative) {
+        if (rem != "0") {
+            result = result + BigInt(1);
+        }
+        result.negative = !result.isZero();
+    } else {
+        result.negative = false;
     }
     
-    result.negative = (negative != other.negative) && !result.isZero();
     result.normalize();
     return result;
 }
